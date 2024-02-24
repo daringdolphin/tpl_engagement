@@ -13,7 +13,7 @@ from db_utils import get_data
 
 load_dotenv()
 
-st.title("TPL dashboard")
+st.title("TPL Engagement")
 st.divider()
 
 member_list = clean_dataframe(get_data('member_list'), 'member_list')
@@ -132,7 +132,7 @@ with events_metric:
         curr_pd_event_attendees = curr_events.groupby('event_name')['username'].nunique().sum()
         prev_pd_event_attendees = prev_events.groupby('event_name')['username'].nunique().sum()
         st.metric(
-            label='Total event attendees',
+            label='Total Event Attendees',
             value=curr_pd_event_attendees,
             delta=f"{int(curr_pd_event_attendees - prev_pd_event_attendees)} from prev. preiod"
             )
@@ -223,8 +223,8 @@ fig.add_trace(go.Scatter(x=[mean_message_count], y=[mean_reaction_count],
                          marker=dict(color='Red', size=10),
                          showlegend=False))
 
-fig.update_xaxes(range=[0, fig.data[0].x.max() + 5])  # Adjust the maximum as needed
-fig.update_yaxes(range=[0, fig.data[0].y.max() + 5])  # Adjust the maximum as needed
+fig.update_xaxes(range=[-0.2, fig.data[0].x.max() + 5])  # Adjust the maximum as needed
+fig.update_yaxes(range=[-0.2, fig.data[0].y.max() + 5])  # Adjust the maximum as needed
 
 st.plotly_chart(fig)
 with st.expander("Show data"):
