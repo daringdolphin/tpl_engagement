@@ -16,11 +16,10 @@ load_dotenv()
 st.title("TPL Engagement")
 st.divider()
 
-member_list = clean_dataframe(get_data('member_list'), 'member_list')
-member_list['join_date'] = pd.to_datetime(member_list['join_date'])
-msgs = clean_dataframe(get_data('chat_messages'), 'chat_messages')
-rxns = clean_dataframe(get_data('chat_reactions'), 'chat_reactions')
-events = clean_dataframe(get_data('tpl_events'), 'tpl_events')
+member_list = clean_dataframe(get_data('member_list', st.session_state.get('cache_clear_counter', 0)), 'member_list')
+msgs = clean_dataframe(get_data('chat_messages', st.session_state.get('cache_clear_counter', 0)), 'chat_messages')
+rxns = clean_dataframe(get_data('chat_reactions', st.session_state.get('cache_clear_counter', 0)), 'chat_reactions')
+events = clean_dataframe(get_data('tpl_events', st.session_state.get('cache_clear_counter', 0)), 'tpl_events')
 
 period = st.sidebar.radio(
     "Select a period for metrics calculation", 
@@ -185,6 +184,7 @@ else:
 new_members = member_list[member_list['join_date'].dt.date > new_member_cutoff_date].reset_index(drop=True)
 
 st.markdown("##### Offline engagement")
+st.caption('Events attended in the past period')
 curr_events = events[(events['datetime'].dt.date > new_member_cutoff_date) & (events['datetime'].dt.date < curr_pd_end)]
 curr_events = curr_events.pivot_table(
     index="username",
@@ -198,34 +198,48 @@ new_member_events = pd.merge(
     on='username', 
     how='left'
     ).fillna(0)[curr_events.columns]
-st.write(new_member_events)
+if len(new_member_events.columns) < 2:
+    st.write("No events attended by new members this period")
+else:
+    st.write(new_member_events)
 
 st.markdown("##### Online engagement")
+new_member_engagement = curr_period[curr_period['username'].isin(new_members['username'])]
+if new_member_engagement['message_count'].any() or new_member_engagement['reaction_count'].any():
+    fig = px.scatter(
+        new_member_engagement, 
+        x='message_count', 
+        y='reaction_count', 
+        title='Message vs Reaction Count',
+        hover_name='username'
+        )
 
-fig = px.scatter(
-    curr_period[curr_period['username'].isin(new_members['username'])], 
-    x='message_count', 
-    y='reaction_count', 
-    title='Message vs Reaction Count',
-    hover_name='username'
-    )
+    mean_message_count = curr_period['message_count'].mean()
+    mean_reaction_count = curr_period['reaction_count'].mean()
 
-mean_message_count = curr_period['message_count'].mean()
-mean_reaction_count = curr_period['reaction_count'].mean()
+    # Add a point for the mean values
+    fig.add_trace(go.Scatter(x=[mean_message_count], y=[mean_reaction_count],
+                            mode='markers+text', 
+                            text=['Mean'], 
+                            textposition='top center',
+                            hoverinfo='text',
+                            hovertext='Avg. no. of messages and reactions by active users in selected period', 
+                            marker=dict(color='Red', size=10),
+                            showlegend=False))
 
-# Add a point for the mean values
-fig.add_trace(go.Scatter(x=[mean_message_count], y=[mean_reaction_count],
-                         mode='markers+text', 
-                         text=['Mean'], 
-                         textposition='top center',
-                         hoverinfo='text',
-                         hovertext='Avg. no. of messages and reactions by active users in selected period', 
-                         marker=dict(color='Red', size=10),
-                         showlegend=False))
+    fig.update_xaxes(range=[-0.2, fig.data[0].x.max() + 5])  # Adjust the maximum as needed
+    fig.update_yaxes(range=[-0.2, fig.data[0].y.max() + 5])  # Adjust the maximum as needed
 
-fig.update_xaxes(range=[-0.2, fig.data[0].x.max() + 5])  # Adjust the maximum as needed
-fig.update_yaxes(range=[-0.2, fig.data[0].y.max() + 5])  # Adjust the maximum as needed
+    st.plotly_chart(fig)
+    with st.expander("Show data"):
+        st.write(curr_period[curr_period['username'].isin(new_members['username'])].reset_index(drop=True))
+else:
+    st.write("No new member engagement")
 
-st.plotly_chart(fig)
-with st.expander("Show data"):
-    st.write(curr_period[curr_period['username'].isin(new_members['username'])].reset_index(drop=True))
+refresh_key = 'refresh_key'
+if st.sidebar.button('Refresh Data', key=refresh_key):
+    if 'cache_clear_counter' not in st.session_state:
+        st.session_state['cache_clear_counter'] = 0
+    st.session_state['cache_clear_counter'] += 1
+
+member_list = clean_dataframe(get_data('member_list', st.session_state.get('cache_clear_counter', 0)), 'member_list')

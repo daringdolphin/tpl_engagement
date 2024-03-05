@@ -9,8 +9,8 @@ st.title("TPL Events")
 core_team = select_core_team()
 start_date, end_date = select_date_filter()
 
-events = clean_dataframe(get_data('tpl_events'), 'tpl_events')
-member_list = get_data('member_list')
+events = clean_dataframe(get_data('tpl_events', st.session_state.get('cache_clear_counter', 0)), 'tpl_events')
+member_list = get_data('member_list', st.session_state.get('cache_clear_counter', 0))
 
 events['username'] = events['username'].str.lower()
 
@@ -35,5 +35,12 @@ with col1:
     min_score = st.number_input("Total events attended", min_value=0, max_value=int(event_participation['Total events'].max()), value=1)
 
 st.write(event_participation[event_participation["Total events"] >= min_score])
+
+
+refresh_key = 'refresh_key'
+if st.sidebar.button('Refresh Data', key=refresh_key):
+    if 'cache_clear_counter' not in st.session_state:
+        st.session_state['cache_clear_counter'] = 0
+    st.session_state['cache_clear_counter'] += 1
 
 

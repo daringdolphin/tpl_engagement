@@ -10,8 +10,8 @@ core_team = select_core_team()
 selected_timescale = select_timescale()
 start_date, end_date = select_date_filter()
 
-msgs = pd.DataFrame(get_data('chat_messages'))
-member_list = pd.DataFrame(get_data('member_list'))
+msgs = pd.DataFrame(get_data('chat_messages', st.session_state.get('cache_clear_counter', 0)))
+member_list = pd.DataFrame(get_data('member_list', st.session_state.get('cache_clear_counter', 0)))
 
 
 if not core_team:
@@ -68,3 +68,8 @@ st.write(plot)
 st.write(filtered_msgs)
 
 
+refresh_key = 'refresh_key'
+if st.sidebar.button('Refresh Data', key=refresh_key):
+    if 'cache_clear_counter' not in st.session_state:
+        st.session_state['cache_clear_counter'] = 0
+    st.session_state['cache_clear_counter'] += 1

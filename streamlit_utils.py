@@ -77,6 +77,7 @@ def select_core_team():
     else:
         st.session_state['core_team'] = st.sidebar.toggle(label='Include core team', value=st.session_state['core_team'])
     return st.session_state['core_team']
+
 def select_score():
     st.sidebar.subheader("Scoring actions")
     event_score = st.sidebar.number_input('Event', value=10)

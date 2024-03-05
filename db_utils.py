@@ -28,7 +28,7 @@ supabase_client = init_supabase_connection()
 
 # Uses st.cache_data to only rerun when the query changes or after a day.
 @st.cache_data(ttl="1 day")
-def get_data(table_name: str) -> pd.DataFrame:
+def get_data(table_name: str, cache_invalidate: int) -> pd.DataFrame:
     response = (supabase_client
                 .table(table_name)
                 .select('*')

@@ -10,8 +10,8 @@ core_team = select_core_team()
 selected_timescale = select_timescale()
 start_date, end_date = select_date_filter()
 
-rxns = pd.DataFrame(get_data('chat_reactions'))
-member_list = pd.DataFrame(get_data('member_list'))
+rxns = pd.DataFrame(get_data('chat_reactions', st.session_state.get('cache_clear_counter', 0)))
+member_list = pd.DataFrame(get_data('member_list', st.session_state.get('cache_clear_counter', 0)))
 
 if not st.session_state['core_team']:
     rxns = rxns[~rxns['user_id'].isin(member_list[member_list['is_mgmt']]['user_id'])]
@@ -62,3 +62,10 @@ fig.update_xaxes(
 st.plotly_chart(fig)
 
 st.write(plot)
+
+
+refresh_key = 'refresh_key'
+if st.sidebar.button('Refresh Data', key=refresh_key):
+    if 'cache_clear_counter' not in st.session_state:
+        st.session_state['cache_clear_counter'] = 0
+    st.session_state['cache_clear_counter'] += 1

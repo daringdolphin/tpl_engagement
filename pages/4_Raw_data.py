@@ -9,13 +9,13 @@ st.write("Interact with raw data here, or download as csv for your own analysis"
 st.write(f"Last updated: {datetime.today().date()}")
 
 with st.expander("TPL member list"):
-    member_list = clean_dataframe(get_data('member_list'), 'member_list')
+    member_list = clean_dataframe(get_data('member_list', st.session_state.get('cache_clear_counter', 0)), 'member_list')
     st.write(member_list)
 
 with st.expander("Chat messages"):
-    chat_messages = clean_dataframe(get_data('chat_messages'), 'chat_messages')
+    chat_messages = clean_dataframe(get_data('chat_messages', st.session_state.get('cache_clear_counter', 0)), 'chat_messages')
     st.write(chat_messages)
 
 with st.expander("Chat reactions"):
-    chat_reactions = clean_dataframe(get_data('chat_reactions'), 'chat_reactions')
+    chat_reactions = clean_dataframe(get_data('chat_reactions', st.session_state.get('cache_clear_counter', 0)), 'chat_reactions')
     st.write(chat_reactions)
