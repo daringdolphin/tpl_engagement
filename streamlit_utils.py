@@ -59,7 +59,7 @@ def clean_dataframe(df: pd.DataFrame, table_name: str) -> pd.DataFrame:
 
 def select_timescale():
     if 'selected_timescale' not in st.session_state:
-        st.session_state['selected_timescale'] = st.sidebar.radio("Select timescale for analysis", ["Week", "Month", "Quarter"], index = 1)
+        st.session_state['selected_timescale'] = st.sidebar.radio("Select granularity", ["Week", "Month", "Quarter"], index = 1)
     else:
         timescale_index_dict = {
             "Week": 0,
@@ -67,7 +67,7 @@ def select_timescale():
             "Quarter": 2
         }
         index = timescale_index_dict[st.session_state['selected_timescale']]
-        st.session_state['selected_timescale'] = st.sidebar.radio("Select timescale for analysis", ["Week", "Month", "Quarter"], index = index)
+        st.session_state['selected_timescale'] = st.sidebar.radio("Select granularity", ["Week", "Month", "Quarter"], index = index)
     
     return st.session_state['selected_timescale']
 
@@ -79,7 +79,7 @@ def select_core_team():
     return st.session_state['core_team']
 
 def select_score():
-    st.sidebar.subheader("Scoring actions")
+    st.sidebar.subheader("Define action weights")
     event_score = st.sidebar.number_input('Event', value=10)
     message_score = st.sidebar.number_input('Message', value=2)
     reaction_score = st.sidebar.number_input('Reaction', value=1)

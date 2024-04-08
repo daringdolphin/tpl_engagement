@@ -5,7 +5,7 @@ import plotly.express as px
 from db_utils import get_data
 from streamlit_utils import select_date_filter, select_timescale, select_core_team, clean_dataframe
 
-st.title("Chat Reactions")
+st.title("Reactions")
 core_team = select_core_team()
 selected_timescale = select_timescale()
 start_date, end_date = select_date_filter()

@@ -5,7 +5,7 @@ import plotly.express as px
 from streamlit_utils import select_date_filter, select_timescale, select_core_team, clean_dataframe
 from db_utils import get_data
 
-st.title("TPL Events")
+st.title("Events")
 core_team = select_core_team()
 start_date, end_date = select_date_filter()
 
@@ -16,7 +16,7 @@ events['username'] = events['username'].str.lower()
 
 if not core_team:
     events = events[~events['user_id'].isin(member_list[member_list['is_mgmt']]['user_id'])]
- 
+
 
 filtered_events = events[(events['datetime'].dt.date > start_date) & (events['datetime'].dt.date < end_date)]
 
